@@ -192,7 +192,7 @@ public class TestHtmlUnit {
 	    else {
 		
 		//Check sale status
-		HtmlTableCell  c = table.getRow(table.getRowCount() - 1).getCell(3);
+		HtmlTableCell c = table.getRow(table.getRowCount() - 1).getCell(3);
 		assertEquals(c.asText(),"O");
 	    }
 	}
