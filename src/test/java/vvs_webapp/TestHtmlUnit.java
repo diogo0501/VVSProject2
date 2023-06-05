@@ -16,7 +16,7 @@ import java.net.MalformedURLException;
 import java.io.*;
 import java.util.*;
 
-public class TestAddress {
+public class TestHtmlUnit {
 
     private static final String APPLICATION_URL = "http://localhost:8080/VVS_webappdemo/";
     //	
@@ -51,7 +51,7 @@ public class TestAddress {
 	int num_rows = 0;
 	HtmlTable table = null;
 	assertEquals("WebAppDemo Menu", page.getTitleText());
-	//turn this final to all java file
+
 	final String VAT,ADDRESS,DOOR,POSTAL,LOCALITY;
 
 	VAT = "197672337";
@@ -60,19 +60,11 @@ public class TestAddress {
 	POSTAL = "2735-980";
 	LOCALITY = "Lisboa";
 
-	
-	//can remove multiple useless pages
 	final String pageAsXml = page.asXml();
 	assertTrue(pageAsXml.contains("<div class=\"w3-container w3-blue-grey w3-center w3-allerta\" id=\"body\">"));
 
 	final String pageAsText = page.asText();
 	assertTrue(pageAsText.contains("WebAppDemo Menu"));
-
-	//go to find costumer by vat and get table size
-
-	//can turn this into func. Refactor code, a lot of duplicated one
-	
-	
 
 	HtmlPage GetCustInfoPage = webClient.getPage(APPLICATION_URL + "getCustomerByVAT.html");
 	final String GetCustInfoPageAsText = GetCustInfoPage.asText();
@@ -114,6 +106,7 @@ public class TestAddress {
 
 	assertTrue(addAddresspageAsText.contains("Add Address"));
 
+	//place data in address input form
 	HtmlForm addAddressForm = addAddressPage.getForms().get(0);
 
 	HtmlInput vatAddInput = addAddressForm.getInputByName("vat");
@@ -139,7 +132,6 @@ public class TestAddress {
 
 	final String clientPageAsText = clientPage.asText();
 
-	System.out.println(clientPageAsText);
 	assertTrue(clientPageAsText.contains("Client Info"));
 
 	try {
@@ -151,7 +143,7 @@ public class TestAddress {
 		int new_num_rows = table.getRowCount();
 		assertEquals("Num of rows didn't increased",new_num_rows,num_rows + 1);
 
-		//instructiosn after assertTrue doesnt work
+		//Check if address were added 
 		List<String> values = Arrays.asList(ADDRESS,DOOR,POSTAL,LOCALITY);
 		HtmlTableRow r = table.getRow(new_num_rows - 1);
 		int i = 0;
@@ -198,6 +190,8 @@ public class TestAddress {
 		System.out.println("[INFO] Null Object");
 	    }
 	    else {
+		
+		//Check sale status
 		HtmlTableCell  c = table.getRow(table.getRowCount() - 1).getCell(3);
 		assertEquals(c.asText(),"O");
 	    }
@@ -236,7 +230,7 @@ public class TestAddress {
 		System.out.println("[INFO] Null Object");
 	    }
 	    else {
-		//table is generated with empty row.Idk if its the way im using in or if its actually a bug
+		//Check if sale state is correct
 		HtmlTableCell c = table.getRow(2).getCell(3);
 		assertEquals(c.asText(),"C");
 	    }
@@ -262,7 +256,8 @@ public class TestAddress {
 	assertTrue(addCustPageAsText.contains("Customer Info"));
 	
 	HtmlForm addCustomerForm = addCustomerPage.getForms().get(0);
-
+	
+	//add Customer Form
 	HtmlInput vatAddInput = addCustomerForm.getInputByName("vat");
 	vatAddInput.setValueAttribute(VAT);
 
@@ -280,7 +275,6 @@ public class TestAddress {
 	
 	assertTrue(clientInfoPageAsTest.contains("Client Info"));
 	
-	//====================REPEATED CODE==============================
 	HtmlTable table;
 	String salePageUrl = "addSale.html";
 	HtmlPage salePage = webClient.getPage(APPLICATION_URL + salePageUrl);
@@ -290,7 +284,7 @@ public class TestAddress {
 	
 	HtmlForm getSaleForm = salePage.getForms().get(0);
 
-	// place data at form
+	//Check sale status
 	HtmlInput vatInput = getSaleForm.getInputByName("customerVat");
 	vatInput.setValueAttribute(VAT);
 
@@ -314,22 +308,23 @@ public class TestAddress {
 	catch(IndexOutOfBoundsException e) {
 	    
 	}
-	//====================REPEATED CODE==============================
 	
 	final String SALE_ID,ADDR_ID;
 	SALE_ID = "1";
-	ADDR_ID = "5"; //?? dont know what this does
+	ADDR_ID = "5"; 
 	
 	String addSaleDelPageUrl = "AddSaleDeliveryPageController?vat="+VAT;
 	HtmlPage addSaleDelPage = webClient.getPage(APPLICATION_URL + addSaleDelPageUrl);
 	
+	
+	//Add Sale Delivery
 	final String addSaleDelPageAsText = addSaleDelPage.asText();
 	assertTrue(addSaleDelPageAsText.contains("Add SaleDelivery"));
 	
 	HtmlForm getAddSaleDelForm = addSaleDelPage.getForms().get(0);
 	
 	HtmlInput addrIdInput = getAddSaleDelForm.getInputByName("addr_id");
-	addrIdInput.setValueAttribute(ADDR_ID); // ?? dont know what this means tbh
+	addrIdInput.setValueAttribute(ADDR_ID);
 	
 	HtmlInput saleIdInput = getAddSaleDelForm.getInputByName("sale_id");
 	saleIdInput.setValueAttribute(SALE_ID);
@@ -349,8 +344,11 @@ public class TestAddress {
 		System.out.println("[INFO] Null Object");
 	    }
 	    else {
+		
+		//Check if everything worked correctly
 		HtmlTableCell saleIdCell = table.getRow(table.getRowCount() - 1).getCell(1);
 		HtmlTableCell addrIdCell = table.getRow(table.getRowCount() - 1).getCell(2);
+		
 		assertEquals(saleIdCell.asText(),SALE_ID);
 		assertEquals(addrIdCell.asText(),ADDR_ID);
 	    }

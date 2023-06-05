@@ -31,7 +31,6 @@ public class TestDB {
 
     @BeforeAll
     public static void setupClass() {
-	//    	System.out.println("setup Class()... ");
 
 	startApplicationDatabaseForTesting();
 	dataSource = DriverManagerDestination.with(DB_URL, DB_USERNAME, DB_PASSWORD);
@@ -39,7 +38,6 @@ public class TestDB {
 
     @BeforeEach
     public void setup() throws SQLException {
-	//		System.out.print("setup()... ");
 
 	Operation initDBOperations = Operations.sequenceOf(
 		DELETE_ALL
@@ -48,15 +46,14 @@ public class TestDB {
 
 	DbSetup dbSetup = new DbSetup(dataSource, initDBOperations);
 
-	// Use the tracker to launch the DBSetup. This will speed-up tests 
-	// that do not change the DB. Otherwise, just use dbSetup.launch();
 	dbSetupTracker.launchIfNecessary(dbSetup);
-	//		dbSetup.launch();
+	
     }
 
     @Test 
     public void testAddClientWithExistingVAT() throws ApplicationException {
 
+	//Add client with existent VAT
 	assertThrows(ApplicationException.class, () -> {
 	    CustomerService.INSTANCE.addCustomer(197672337, "FRANCISCO", 912345678);
 	});
@@ -70,6 +67,7 @@ public class TestDB {
 	final int VAT = 197672337;
 	CustomerService.INSTANCE.updateCustomerPhone(VAT,UPDATEPHONE);
 
+	//Check updated contact
 	CustomerDTO c = CustomerService.INSTANCE.getCustomerByVat(VAT);
 	assertEquals(c.phoneNumber,UPDATEPHONE);
     }
@@ -79,11 +77,9 @@ public class TestDB {
 
 	final Operation DELETE_CUSTOMER = deleteAllFrom("CUSTOMER");
 
-	// Idk if this is the right way to do this. or even if Im allowed to do this
+	//Empty Customer table
 	DbSetup dbSetupTest = new DbSetup(dataSource, DELETE_CUSTOMER);
 
-	// Use the tracker to launch the DBSetup. This will speed-up tests 
-	// that do not change the DB. Otherwise, just use dbSetup.launch();
 	dbSetupTracker.launchIfNecessary(dbSetupTest);
 
 	assertEquals(0,CustomerService.INSTANCE.getAllCustomers().customers.size());
@@ -94,8 +90,8 @@ public class TestDB {
 
 	final int VAT = 168027852;
 
+	//Add Sale
 	SaleService.INSTANCE.addSale(VAT);
-
 	assertEquals(NUM_INIT_SALES + 1,SaleService.INSTANCE.getAllSales().sales.size());
     }
 
@@ -104,16 +100,14 @@ public class TestDB {
 
 	final int VAT = 168027852;
 
+	//Add sale 
 	SaleService.INSTANCE.addSale(VAT);
-
 	SaleDTO s = SaleService.INSTANCE.getSaleByCustomerVat(VAT).sales.get(0);
-
 	assertTrue(!s.equals(null));
 
+	//update sale
 	SaleService.INSTANCE.updateSale(s.id);
-
 	s = SaleService.INSTANCE.getSaleByCustomerVat(VAT).sales.get(0);
-
 	assertEquals("C",s.statusId);
     }
 
@@ -123,6 +117,7 @@ public class TestDB {
 	final int VAT = 168027852;
 	final int NUM_SALES = 1;
 
+	//Add set if sales
 	for (int i = 0; i < NUM_SALES ;i++) {
 	    SaleService.INSTANCE.addSale(VAT);
 	}
@@ -143,6 +138,7 @@ public class TestDB {
 	final int VAT = 168027852;
 	final int NUM_SALES_DEL = 5;
 
+	//Add sale and add delivery for that sale
 	for (int i = 0; i < NUM_SALES_DEL ;i++) {
 	    SaleService.INSTANCE.addSale(VAT);
 	    SaleDTO s = SaleService.INSTANCE.getSaleByCustomerVat(VAT).sales.get(i);
@@ -152,47 +148,5 @@ public class TestDB {
 	assertEquals(NUM_SALES_DEL,SaleService.INSTANCE.getSaleByCustomerVat(VAT).sales.size());
     }
 
-
-    //    //updateCustomerPhone
-    //    @Test
-    //    public void queryCustomerNumberTest() throws ApplicationException {
-    //	//		System.out.println("queryCustomerNumberTest()... ");
-    //
-    //	// read-only test: unnecessary to re-launch setup after test has been run
-    //	dbSetupTracker.skipNextLaunch();
-    //
-    //	int expected = NUM_INIT_CUSTOMERS;
-    //	int actual   = CustomerService.INSTANCE.getAllCustomers().customers.size();
-    //
-    //	assertEquals(expected, actual);
-    //    }
-    //
-    //    @Test
-    //    public void addCustomerSizeTest() throws ApplicationException {
-    //	//		System.out.println("addCustomerSizeTest()... ");
-    //
-    //	CustomerService.INSTANCE.addCustomer(503183504, "FCUL", 217500000);
-    //	int size = CustomerService.INSTANCE.getAllCustomers().customers.size();
-    //
-    //	assertEquals(NUM_INIT_CUSTOMERS+1, size);
-    //    }
-    //
-    //    private boolean hasClient(int vat) throws ApplicationException {	
-    //	CustomersDTO customersDTO = CustomerService.INSTANCE.getAllCustomers();
-    //
-    //	for(CustomerDTO customer : customersDTO.customers)
-    //	    if (customer.vat == vat)
-    //		return true;			
-    //	return false;
-    //    }
-    //
-    //    @Test
-    //    public void addCustomerTest() throws ApplicationException {
-    //	//		System.out.println("addCustomerTest()... ");
-    //
-    //	assumeFalse(hasClient(503183504));
-    //	CustomerService.INSTANCE.addCustomer(503183504, "FCUL", 217500000);
-    //	assertTrue(hasClient(503183504));
-    //    }
 
 }

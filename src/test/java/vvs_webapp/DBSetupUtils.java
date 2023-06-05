@@ -71,7 +71,6 @@ public class DBSetupUtils {
 
 	NUM_INIT_SALES = insertSales.getRowCount();
 
-	// it's possible to combine dataset samples with 'sequenceOf'
 	INSERT_CUSTOMER_SALE_DATA = sequenceOf(insertCustomers, insertSales);
 
 	Insert insertAddresses = 
